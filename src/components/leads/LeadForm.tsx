@@ -2,10 +2,10 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { LeadStage, Lead } from "@/data/leads";
 import { useToast } from "@/components/ui/use-toast";
+import { Textarea } from "@/components/ui/textarea";
 
 interface LeadFormProps {
   open: boolean;
@@ -41,7 +41,7 @@ const LeadForm = ({ open, onOpenChange, onSubmit, initialData }: LeadFormProps) 
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="w-[400px] sm:w-[540px]">
+      <SheetContent className="w-[400px] sm:w-[540px] overflow-y-auto">
         <SheetHeader>
           <SheetTitle>{initialData ? "Edit Lead" : "Create New Lead"}</SheetTitle>
         </SheetHeader>
@@ -127,6 +127,15 @@ const LeadForm = ({ open, onOpenChange, onSubmit, initialData }: LeadFormProps) 
               onChange={(e) => setFormData({ ...formData, value: Number(e.target.value) })}
               placeholder="25000"
               required
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Notes</label>
+            <Textarea
+              value={formData.notes}
+              onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+              placeholder="Add any additional notes about the lead..."
+              className="min-h-[100px]"
             />
           </div>
           <div className="pt-4 flex justify-end space-x-2">

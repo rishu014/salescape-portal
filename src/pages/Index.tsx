@@ -1,21 +1,26 @@
 import { useState } from "react";
-import { leads, getLeadsByStage, LeadStage, Lead } from "@/data/leads";
+import { leads, Lead } from "@/data/leads";
 import LeadList from "@/components/leads/LeadList";
-import LeadStageProgress from "@/components/dashboard/LeadStageProgress";
+import LeadForm from "@/components/leads/LeadForm";
+import { EmployeeStats } from "@/components/dashboard/EmployeeStats";
 import PerformanceOverview from "@/components/dashboard/PerformanceOverview";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 
 const Index = () => {
-  const [selectedStage, setSelectedStage] = useState<LeadStage | null>(null);
   const [showLeadForm, setShowLeadForm] = useState(false);
   const [localLeads, setLocalLeads] = useState<Lead[]>(leads);
 
-  const stages: LeadStage[] = ["new", "contacted", "negotiation", "closed", "lost"];
-  const stageData = stages.map((stage) => ({
-    stage,
-    count: localLeads.filter(lead => lead.stage === stage).length,
-  }));
+  const handleAddLead = (newLead: Partial<Lead>) => {
+    const lead: Lead = {
+      ...newLead,
+      id: (localLeads.length + 1).toString(),
+      createdAt: new Date().toISOString().split('T')[0],
+      lastContact: new Date().toISOString().split('T')[0],
+    } as Lead;
+    
+    setLocalLeads([lead, ...localLeads]);
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 p-8">
@@ -33,31 +38,21 @@ const Index = () => {
           </Button>
         </div>
 
+        <EmployeeStats />
         <PerformanceOverview />
 
-        <div className="grid gap-8 lg:grid-cols-3">
-          <div className="lg:col-span-2">
-            <div className="rounded-lg border bg-white p-6">
-              <h2 className="text-xl font-semibold text-gray-900">
-                {selectedStage
-                  ? `${selectedStage.charAt(0).toUpperCase() + selectedStage.slice(1)} Leads`
-                  : "All Leads"}
-              </h2>
-              <div className="mt-6">
-                <LeadList
-                  leads={selectedStage ? localLeads.filter(lead => lead.stage === selectedStage) : localLeads}
-                />
-              </div>
-            </div>
-          </div>
-
-          <div className="rounded-lg border bg-white p-6">
-            <h2 className="text-xl font-semibold text-gray-900">Pipeline Stages</h2>
-            <div className="mt-6">
-              <LeadStageProgress stages={stageData} total={localLeads.length} />
-            </div>
+        <div className="rounded-lg border bg-white p-6">
+          <h2 className="text-xl font-semibold text-gray-900">Recent Leads</h2>
+          <div className="mt-6">
+            <LeadList leads={localLeads.slice(0, 5)} />
           </div>
         </div>
+
+        <LeadForm
+          open={showLeadForm}
+          onOpenChange={setShowLeadForm}
+          onSubmit={handleAddLead}
+        />
       </div>
     </div>
   );
