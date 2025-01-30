@@ -11,10 +11,14 @@ interface LeadStageProgressProps {
 }
 
 const LeadStageProgress = ({ stages, total }: LeadStageProgressProps) => {
+  if (!stages || !total) {
+    return null;
+  }
+
   return (
     <div className="space-y-4">
       {stages.map(({ stage, count }) => {
-        const percentage = Math.round((count / total) * 100);
+        const percentage = Math.round((count / total) * 100) || 0;
         const color = getStageColor(stage);
 
         return (
@@ -29,13 +33,16 @@ const LeadStageProgress = ({ stages, total }: LeadStageProgressProps) => {
             </div>
             <Progress 
               value={percentage} 
-              className={cn(`h-2`, {
-                'bg-primary/20': color === 'primary',
-                'bg-warning/20': color === 'warning',
-                'bg-secondary/20': color === 'secondary',
-                'bg-success/20': color === 'success',
-                'bg-danger/20': color === 'danger'
-              })}
+              className={cn(
+                "h-2",
+                {
+                  'bg-primary/20': color === 'primary',
+                  'bg-warning/20': color === 'warning',
+                  'bg-secondary/20': color === 'secondary',
+                  'bg-success/20': color === 'success',
+                  'bg-danger/20': color === 'danger'
+                }
+              )}
             />
           </div>
         );

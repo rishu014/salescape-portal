@@ -1,12 +1,17 @@
 import { performanceData } from "@/data/performance";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ChartContainer, ChartTooltip } from "@/components/ui/chart";
+import { ChartContainer } from "@/components/ui/chart";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { formatCurrency } from "@/data/leads";
 import StatsCard from "@/components/common/StatsCard";
 import { Users, Clock, TrendingUp, DollarSign } from "lucide-react";
 
 const COLORS = ["#8B5CF6", "#F97316", "#22C55E", "#EF4444"];
+
+const chartConfig = {
+  assigned: { color: "#8B5CF6" },
+  closed: { color: "#22C55E" },
+};
 
 const PerformanceOverview = () => {
   const totalLeads = performanceData.reduce((sum, emp) => sum + emp.leadsAssigned, 0);
@@ -52,40 +57,44 @@ const PerformanceOverview = () => {
         <div className="rounded-lg border bg-white p-6">
           <h3 className="mb-4 text-lg font-semibold">Leads Performance</h3>
           <div className="h-[300px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={performanceData}>
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="leadsAssigned" fill="#8B5CF6" name="Assigned" />
-                <Bar dataKey="leadsClosed" fill="#22C55E" name="Closed" />
-              </BarChart>
-            </ResponsiveContainer>
+            <ChartContainer config={chartConfig}>
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={performanceData}>
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <Tooltip />
+                  <Bar dataKey="leadsAssigned" fill="#8B5CF6" name="Assigned" />
+                  <Bar dataKey="leadsClosed" fill="#22C55E" name="Closed" />
+                </BarChart>
+              </ResponsiveContainer>
+            </ChartContainer>
           </div>
         </div>
 
         <div className="rounded-lg border bg-white p-6">
           <h3 className="mb-4 text-lg font-semibold">Win Rate by Rep</h3>
           <div className="h-[300px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={pieData}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={false}
-                  outerRadius={100}
-                  fill="#8884d8"
-                  dataKey="value"
-                  label={({ name, value }) => `${name}: ${Math.round(value)}%`}
-                >
-                  {pieData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
+            <ChartContainer config={chartConfig}>
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={pieData}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    outerRadius={100}
+                    fill="#8884d8"
+                    dataKey="value"
+                    label={({ name, value }) => `${name}: ${Math.round(value)}%`}
+                  >
+                    {pieData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
+            </ChartContainer>
           </div>
         </div>
       </div>
