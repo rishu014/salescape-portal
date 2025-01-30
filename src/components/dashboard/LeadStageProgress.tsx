@@ -1,5 +1,6 @@
 import { Progress } from "@/components/ui/progress";
 import { LeadStage, getStageColor } from "@/data/leads";
+import { cn } from "@/lib/utils";
 
 interface LeadStageProgressProps {
   stages: {
@@ -26,10 +27,15 @@ const LeadStageProgress = ({ stages, total }: LeadStageProgressProps) => {
                 {count} ({percentage}%)
               </span>
             </div>
-            <Progress
-              value={percentage}
-              className={`bg-${color}/20 h-2`}
-              indicatorClassName={`bg-${color}`}
+            <Progress 
+              value={percentage} 
+              className={cn(`h-2`, {
+                'bg-primary/20': color === 'primary',
+                'bg-warning/20': color === 'warning',
+                'bg-secondary/20': color === 'secondary',
+                'bg-success/20': color === 'success',
+                'bg-danger/20': color === 'danger'
+              })}
             />
           </div>
         );

@@ -1,37 +1,58 @@
 import { useState } from "react";
-import { leads, getLeadsByStage, LeadStage } from "@/data/leads";
+import { leads, getLeadsByStage, LeadStage, Lead } from "@/data/leads";
 import LeadList from "@/components/leads/LeadList";
 import LeadStageProgress from "@/components/dashboard/LeadStageProgress";
 import StatsCard from "@/components/common/StatsCard";
-import { Users, DollarSign, TrendingUp, Target } from "lucide-react";
+import LeadForm from "@/components/leads/LeadForm";
+import { Button } from "@/components/ui/button";
+import { Users, DollarSign, TrendingUp, Target, Plus } from "lucide-react";
 
 const Index = () => {
   const [selectedStage, setSelectedStage] = useState<LeadStage | null>(null);
+  const [showLeadForm, setShowLeadForm] = useState(false);
+  const [localLeads, setLocalLeads] = useState<Lead[]>(leads);
 
   const stages: LeadStage[] = ["new", "contacted", "negotiation", "closed", "lost"];
   const stageData = stages.map((stage) => ({
     stage,
-    count: getLeadsByStage(stage).length,
+    count: localLeads.filter(lead => lead.stage === stage).length,
   }));
 
-  const totalValue = leads.reduce((sum, lead) => sum + lead.value, 0);
-  const avgValue = totalValue / leads.length;
-  const conversionRate = (getLeadsByStage("closed").length / leads.length) * 100;
+  const totalValue = localLeads.reduce((sum, lead) => sum + lead.value, 0);
+  const avgValue = totalValue / localLeads.length;
+  const conversionRate = (localLeads.filter(lead => lead.stage === "closed").length / localLeads.length) * 100;
+
+  const handleCreateLead = (newLead: Partial<Lead>) => {
+    const lead: Lead = {
+      id: (localLeads.length + 1).toString(),
+      createdAt: new Date().toISOString().split('T')[0],
+      lastContact: new Date().toISOString().split('T')[0],
+      ...newLead,
+    } as Lead;
+    
+    setLocalLeads([lead, ...localLeads]);
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 p-8">
       <div className="mx-auto max-w-7xl space-y-8">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Lead Dashboard</h1>
-          <p className="mt-2 text-gray-600">
-            Track and manage your sales pipeline effectively
-          </p>
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Lead Dashboard</h1>
+            <p className="mt-2 text-gray-600">
+              Track and manage your sales pipeline effectively
+            </p>
+          </div>
+          <Button onClick={() => setShowLeadForm(true)}>
+            <Plus className="mr-2 h-4 w-4" />
+            Add New Lead
+          </Button>
         </div>
 
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           <StatsCard
             title="Total Leads"
-            value={leads.length}
+            value={localLeads.length}
             icon={Users}
             trend={{ value: 12, isPositive: true }}
           />
@@ -73,7 +94,7 @@ const Index = () => {
               </h2>
               <div className="mt-6">
                 <LeadList
-                  leads={selectedStage ? getLeadsByStage(selectedStage) : leads}
+                  leads={selectedStage ? localLeads.filter(lead => lead.stage === selectedStage) : localLeads}
                 />
               </div>
             </div>
@@ -82,11 +103,17 @@ const Index = () => {
           <div className="rounded-lg border bg-white p-6">
             <h2 className="text-xl font-semibold text-gray-900">Pipeline Stages</h2>
             <div className="mt-6">
-              <LeadStageProgress stages={stageData} total={leads.length} />
+              <LeadStageProgress stages={stageData} total={localLeads.length} />
             </div>
           </div>
         </div>
       </div>
+
+      <LeadForm
+        open={showLeadForm}
+        onOpenChange={setShowLeadForm}
+        onSubmit={handleCreateLead}
+      />
     </div>
   );
 };
