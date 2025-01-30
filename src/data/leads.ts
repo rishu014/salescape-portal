@@ -12,6 +12,7 @@ export interface Lead {
   createdAt: string;
   lastContact: string;
   value: number;
+  notes?: string; // Added notes as an optional property
 }
 
 export const leads: Lead[] = [
