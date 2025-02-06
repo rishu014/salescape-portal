@@ -1,13 +1,28 @@
 import { useState } from "react";
-import { leads, Lead } from "@/data/leads";
+import { leads, Lead, LeadStage } from "@/data/leads";
 import LeadList from "@/components/leads/LeadList";
 import LeadForm from "@/components/leads/LeadForm";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
+import { format, isToday, parseISO } from "date-fns";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const Leads = () => {
   const [showLeadForm, setShowLeadForm] = useState(false);
   const [localLeads, setLocalLeads] = useState<Lead[]>(leads);
+
+  const todayCallbacks = localLeads.filter(
+    (lead) => lead.nextCallback && isToday(parseISO(lead.nextCallback))
+  );
+
+  const leadsByStage = localLeads.reduce((acc, lead) => {
+    if (!acc[lead.stage]) {
+      acc[lead.stage] = [];
+    }
+    acc[lead.stage].push(lead);
+    return acc;
+  }, {} as Record<LeadStage, Lead[]>);
 
   const handleAddLead = (newLead: Partial<Lead>) => {
     const lead: Lead = {
@@ -36,9 +51,54 @@ const Leads = () => {
           </Button>
         </div>
 
-        <div className="rounded-lg border bg-white p-6">
-          <LeadList leads={localLeads} />
-        </div>
+        {todayCallbacks.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Today's Scheduled Callbacks</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                {todayCallbacks.map((lead) => (
+                  <div key={lead.id} className="rounded-lg border bg-white p-4">
+                    <h3 className="font-semibold">{lead.name}</h3>
+                    <p className="text-sm text-gray-500">{lead.company}</p>
+                    <p className="mt-2 text-sm text-primary">
+                      Callback scheduled for: {lead.nextCallback}
+                    </p>
+                    {lead.callbackNotes && (
+                      <p className="mt-1 text-sm text-gray-600">
+                        Notes: {lead.callbackNotes}
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        <Tabs defaultValue="new" className="w-full">
+          <TabsList>
+            <TabsTrigger value="new">New</TabsTrigger>
+            <TabsTrigger value="contacted">Contacted</TabsTrigger>
+            <TabsTrigger value="negotiation">Negotiation</TabsTrigger>
+            <TabsTrigger value="closed">Closed</TabsTrigger>
+            <TabsTrigger value="lost">Lost</TabsTrigger>
+          </TabsList>
+
+          {Object.entries(leadsByStage).map(([stage, stageLeads]) => (
+            <TabsContent key={stage} value={stage}>
+              <div className="rounded-lg border bg-white p-6">
+                <LeadList 
+                  leads={stageLeads} 
+                  onLeadClick={(lead) => {
+                    setShowLeadForm(true);
+                  }} 
+                />
+              </div>
+            </TabsContent>
+          ))}
+        </Tabs>
 
         <LeadForm
           open={showLeadForm}
