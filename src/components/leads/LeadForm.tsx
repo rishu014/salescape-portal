@@ -3,9 +3,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Calendar } from "@/components/ui/calendar";
 import { LeadStage, Lead } from "@/data/leads";
 import { useToast } from "@/components/ui/use-toast";
 import { Textarea } from "@/components/ui/textarea";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { CalendarIcon } from "lucide-react";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 
 interface LeadFormProps {
   open: boolean;
@@ -26,7 +31,13 @@ const LeadForm = ({ open, onOpenChange, onSubmit, initialData }: LeadFormProps) 
       stage: "new" as LeadStage,
       assignedTo: "",
       value: 0,
+      nextCallback: "",
+      callbackNotes: "",
     }
+  );
+
+  const [date, setDate] = useState<Date | undefined>(
+    formData.nextCallback ? new Date(formData.nextCallback) : undefined
   );
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -96,7 +107,15 @@ const LeadForm = ({ open, onOpenChange, onSubmit, initialData }: LeadFormProps) 
             <label className="text-sm font-medium">Stage</label>
             <Select
               value={formData.stage}
-              onValueChange={(value: LeadStage) => setFormData({ ...formData, stage: value })}
+              onValueChange={(value: LeadStage) => {
+                setFormData({ ...formData, stage: value });
+                if (value === 'contacted') {
+                  toast({
+                    title: "Don't forget!",
+                    description: "Schedule a follow-up call with the lead.",
+                  });
+                }
+              }}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select stage" />
@@ -110,34 +129,49 @@ const LeadForm = ({ open, onOpenChange, onSubmit, initialData }: LeadFormProps) 
               </SelectContent>
             </Select>
           </div>
+
           <div className="space-y-2">
-            <label className="text-sm font-medium">Assigned To</label>
-            <Input
-              value={formData.assignedTo}
-              onChange={(e) => setFormData({ ...formData, assignedTo: e.target.value })}
-              placeholder="Sarah Wilson"
-              required
-            />
+            <label className="text-sm font-medium">Next Callback Date</label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant={"outline"}
+                  className={cn(
+                    "w-full justify-start text-left font-normal",
+                    !date && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {date ? format(date, "PPP") : <span>Pick a date</span>}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0">
+                <Calendar
+                  mode="single"
+                  selected={date}
+                  onSelect={(newDate) => {
+                    setDate(newDate);
+                    setFormData({
+                      ...formData,
+                      nextCallback: newDate ? format(newDate, "yyyy-MM-dd") : "",
+                    });
+                  }}
+                  initialFocus
+                />
+              </PopoverContent>
+            </Popover>
           </div>
+
           <div className="space-y-2">
-            <label className="text-sm font-medium">Deal Value</label>
-            <Input
-              type="number"
-              value={formData.value}
-              onChange={(e) => setFormData({ ...formData, value: Number(e.target.value) })}
-              placeholder="25000"
-              required
-            />
-          </div>
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Notes</label>
+            <label className="text-sm font-medium">Callback Notes</label>
             <Textarea
-              value={formData.notes}
-              onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-              placeholder="Add any additional notes about the lead..."
+              value={formData.callbackNotes}
+              onChange={(e) => setFormData({ ...formData, callbackNotes: e.target.value })}
+              placeholder="Add notes about the next callback..."
               className="min-h-[100px]"
             />
           </div>
+
           <div className="pt-4 flex justify-end space-x-2">
             <Button variant="outline" onClick={() => onOpenChange(false)}>
               Cancel

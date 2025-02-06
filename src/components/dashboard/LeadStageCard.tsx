@@ -1,7 +1,8 @@
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Lead, getStageColor, formatCurrency } from "@/data/leads";
-import { CalendarDays, Building2, Mail } from "lucide-react";
+import { CalendarDays, Building2, Mail, PhoneCall } from "lucide-react";
+import { format } from "date-fns";
 
 interface LeadStageCardProps {
   lead: Lead;
@@ -41,6 +42,12 @@ const LeadStageCard = ({ lead, onClick }: LeadStageCardProps) => {
           <CalendarDays className="h-4 w-4" />
           <span>Last Contact: {lead.lastContact}</span>
         </div>
+        {lead.nextCallback && (
+          <div className="flex items-center space-x-2 text-primary">
+            <PhoneCall className="h-4 w-4" />
+            <span>Next Callback: {lead.nextCallback}</span>
+          </div>
+        )}
       </div>
 
       <div className="flex items-center justify-between border-t pt-4">

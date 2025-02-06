@@ -12,7 +12,9 @@ export interface Lead {
   createdAt: string;
   lastContact: string;
   value: number;
-  notes?: string; // Added notes as an optional property
+  notes?: string;
+  nextCallback?: string;
+  callbackNotes?: string;
 }
 
 export const leads: Lead[] = [
@@ -28,6 +30,8 @@ export const leads: Lead[] = [
     createdAt: "2024-01-15",
     lastContact: "2024-01-15",
     value: 25000,
+    nextCallback: "2024-04-20",
+    callbackNotes: "Follow up about the proposal"
   },
   {
     id: "2",
