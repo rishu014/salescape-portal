@@ -1,39 +1,25 @@
 import { useState } from "react";
-import { leads, Lead, LeadStage } from "@/data/leads";
-import LeadList from "@/components/leads/LeadList";
-import LeadForm from "@/components/leads/LeadForm";
+import { leads, Lead } from "@/data/leads";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { format, isToday, parseISO } from "date-fns";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import LeadForm from "@/components/leads/LeadForm";
+import TodayCallbacks from "@/components/leads/TodayCallbacks";
+import LeadsByStage from "@/components/leads/LeadsByStage";
+import { useToast } from "@/components/ui/use-toast";
 
 const Leads = () => {
   const [showLeadForm, setShowLeadForm] = useState(false);
   const [localLeads, setLocalLeads] = useState<Lead[]>(leads);
   const [selectedLead, setSelectedLead] = useState<Lead | undefined>();
-
-  const todayCallbacks = localLeads.filter(
-    (lead) => lead.nextCallback && isToday(parseISO(lead.nextCallback))
-  );
-
-  const leadsByStage = localLeads.reduce((acc, lead) => {
-    if (!acc[lead.stage]) {
-      acc[lead.stage] = [];
-    }
-    acc[lead.stage].push(lead);
-    return acc;
-  }, {} as Record<LeadStage, Lead[]>);
+  const { toast } = useToast();
 
   const handleAddLead = (newLead: Partial<Lead>) => {
     if (selectedLead) {
-      // Update existing lead
       const updatedLeads = localLeads.map((lead) =>
         lead.id === selectedLead.id ? { ...lead, ...newLead } : lead
       );
       setLocalLeads(updatedLeads);
     } else {
-      // Add new lead
       const lead: Lead = {
         ...newLead,
         id: (localLeads.length + 1).toString(),
@@ -69,56 +55,8 @@ const Leads = () => {
           </Button>
         </div>
 
-        {todayCallbacks.length > 0 && (
-          <Card>
-            <CardHeader>
-              <CardTitle>Today's Scheduled Callbacks</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                {todayCallbacks.map((lead) => (
-                  <div 
-                    key={lead.id} 
-                    className="rounded-lg border bg-white p-4 cursor-pointer hover:shadow-md transition-shadow"
-                    onClick={() => handleLeadClick(lead)}
-                  >
-                    <h3 className="font-semibold">{lead.name}</h3>
-                    <p className="text-sm text-gray-500">{lead.company}</p>
-                    <p className="mt-2 text-sm text-primary">
-                      Callback scheduled for: {lead.nextCallback}
-                    </p>
-                    {lead.callbackNotes && (
-                      <p className="mt-1 text-sm text-gray-600">
-                        Notes: {lead.callbackNotes}
-                      </p>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        <Tabs defaultValue="new" className="w-full">
-          <TabsList className="w-full justify-start">
-            <TabsTrigger value="new">New</TabsTrigger>
-            <TabsTrigger value="contacted">Contacted</TabsTrigger>
-            <TabsTrigger value="negotiation">Negotiation</TabsTrigger>
-            <TabsTrigger value="closed">Closed</TabsTrigger>
-            <TabsTrigger value="lost">Lost</TabsTrigger>
-          </TabsList>
-
-          {Object.entries(leadsByStage).map(([stage, stageLeads]) => (
-            <TabsContent key={stage} value={stage}>
-              <div className="rounded-lg border bg-white p-6">
-                <LeadList 
-                  leads={stageLeads} 
-                  onLeadClick={handleLeadClick}
-                />
-              </div>
-            </TabsContent>
-          ))}
-        </Tabs>
+        <TodayCallbacks leads={localLeads} onLeadClick={handleLeadClick} />
+        <LeadsByStage leads={localLeads} onLeadClick={handleLeadClick} />
 
         <LeadForm
           open={showLeadForm}
