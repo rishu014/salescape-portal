@@ -11,6 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 const Leads = () => {
   const [showLeadForm, setShowLeadForm] = useState(false);
   const [localLeads, setLocalLeads] = useState<Lead[]>(leads);
+  const [selectedLead, setSelectedLead] = useState<Lead | undefined>();
 
   const todayCallbacks = localLeads.filter(
     (lead) => lead.nextCallback && isToday(parseISO(lead.nextCallback))
@@ -25,14 +26,28 @@ const Leads = () => {
   }, {} as Record<LeadStage, Lead[]>);
 
   const handleAddLead = (newLead: Partial<Lead>) => {
-    const lead: Lead = {
-      ...newLead,
-      id: (localLeads.length + 1).toString(),
-      createdAt: new Date().toISOString().split('T')[0],
-      lastContact: new Date().toISOString().split('T')[0],
-    } as Lead;
-    
-    setLocalLeads([lead, ...localLeads]);
+    if (selectedLead) {
+      // Update existing lead
+      const updatedLeads = localLeads.map((lead) =>
+        lead.id === selectedLead.id ? { ...lead, ...newLead } : lead
+      );
+      setLocalLeads(updatedLeads);
+    } else {
+      // Add new lead
+      const lead: Lead = {
+        ...newLead,
+        id: (localLeads.length + 1).toString(),
+        createdAt: new Date().toISOString().split('T')[0],
+        lastContact: new Date().toISOString().split('T')[0],
+      } as Lead;
+      setLocalLeads([lead, ...localLeads]);
+    }
+    setSelectedLead(undefined);
+  };
+
+  const handleLeadClick = (lead: Lead) => {
+    setSelectedLead(lead);
+    setShowLeadForm(true);
   };
 
   return (
@@ -45,7 +60,10 @@ const Leads = () => {
               View and manage all your leads in one place
             </p>
           </div>
-          <Button onClick={() => setShowLeadForm(true)}>
+          <Button onClick={() => {
+            setSelectedLead(undefined);
+            setShowLeadForm(true);
+          }}>
             <Plus className="mr-2 h-4 w-4" />
             Add New Lead
           </Button>
@@ -59,7 +77,11 @@ const Leads = () => {
             <CardContent>
               <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                 {todayCallbacks.map((lead) => (
-                  <div key={lead.id} className="rounded-lg border bg-white p-4">
+                  <div 
+                    key={lead.id} 
+                    className="rounded-lg border bg-white p-4 cursor-pointer hover:shadow-md transition-shadow"
+                    onClick={() => handleLeadClick(lead)}
+                  >
                     <h3 className="font-semibold">{lead.name}</h3>
                     <p className="text-sm text-gray-500">{lead.company}</p>
                     <p className="mt-2 text-sm text-primary">
@@ -78,7 +100,7 @@ const Leads = () => {
         )}
 
         <Tabs defaultValue="new" className="w-full">
-          <TabsList>
+          <TabsList className="w-full justify-start">
             <TabsTrigger value="new">New</TabsTrigger>
             <TabsTrigger value="contacted">Contacted</TabsTrigger>
             <TabsTrigger value="negotiation">Negotiation</TabsTrigger>
@@ -91,9 +113,7 @@ const Leads = () => {
               <div className="rounded-lg border bg-white p-6">
                 <LeadList 
                   leads={stageLeads} 
-                  onLeadClick={(lead) => {
-                    setShowLeadForm(true);
-                  }} 
+                  onLeadClick={handleLeadClick}
                 />
               </div>
             </TabsContent>
@@ -102,8 +122,12 @@ const Leads = () => {
 
         <LeadForm
           open={showLeadForm}
-          onOpenChange={setShowLeadForm}
+          onOpenChange={(open) => {
+            setShowLeadForm(open);
+            if (!open) setSelectedLead(undefined);
+          }}
           onSubmit={handleAddLead}
+          initialData={selectedLead}
         />
       </div>
     </div>

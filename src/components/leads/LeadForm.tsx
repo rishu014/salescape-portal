@@ -42,7 +42,11 @@ const LeadForm = ({ open, onOpenChange, onSubmit, initialData }: LeadFormProps) 
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(formData);
+    if (initialData) {
+      onSubmit({ ...initialData, ...formData });
+    } else {
+      onSubmit(formData);
+    }
     toast({
       title: initialData ? "Lead Updated" : "Lead Created",
       description: `Successfully ${initialData ? "updated" : "created"} lead for ${formData.name}`,
@@ -117,10 +121,10 @@ const LeadForm = ({ open, onOpenChange, onSubmit, initialData }: LeadFormProps) 
                 }
               }}
             >
-              <SelectTrigger>
+              <SelectTrigger className="w-full">
                 <SelectValue placeholder="Select stage" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent position="popper">
                 <SelectItem value="new">New</SelectItem>
                 <SelectItem value="contacted">Contacted</SelectItem>
                 <SelectItem value="negotiation">Negotiation</SelectItem>
@@ -145,7 +149,7 @@ const LeadForm = ({ open, onOpenChange, onSubmit, initialData }: LeadFormProps) 
                   {date ? format(date, "PPP") : <span>Pick a date</span>}
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-auto p-0">
+              <PopoverContent className="w-auto p-0" align="start">
                 <Calendar
                   mode="single"
                   selected={date}
