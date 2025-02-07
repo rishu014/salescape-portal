@@ -185,7 +185,7 @@ const LeadForm = ({ open, onOpenChange, onSubmit, initialData }: LeadFormProps) 
                   {date ? format(date, "PPP") : <span>Pick a date</span>}
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="z-[201] w-auto p-0" align="start">
+              <PopoverContent className="z-[201] w-auto p-0" align="start" side="left">
                 <Calendar
                   mode="single"
                   selected={date}

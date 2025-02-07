@@ -1,14 +1,16 @@
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Lead, getStatusColor, formatCurrency } from "@/data/leads";
-import { CalendarDays, Building2, Mail, PhoneCall } from "lucide-react";
+import { CalendarDays, Building2, Mail, PhoneCall, Trash2 } from "lucide-react";
 
 interface LeadStageCardProps {
   lead: Lead;
   onClick?: () => void;
+  onDelete?: () => void;
 }
 
-const LeadStageCard = ({ lead, onClick }: LeadStageCardProps) => {
+const LeadStageCard = ({ lead, onClick, onDelete }: LeadStageCardProps) => {
   const statusColor = getStatusColor(lead.status);
 
   return (
@@ -24,12 +26,27 @@ const LeadStageCard = ({ lead, onClick }: LeadStageCardProps) => {
             <span>{lead.company}</span>
           </div>
         </div>
-        <Badge
-          className={`bg-${statusColor} hover:bg-${statusColor}`}
-          variant="secondary"
-        >
-          {lead.status.charAt(0).toUpperCase() + lead.status.slice(1)}
-        </Badge>
+        <div className="flex items-center space-x-2">
+          {onDelete && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 text-red-500 hover:bg-red-50 hover:text-red-600"
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete();
+              }}
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          )}
+          <Badge
+            className={`bg-${statusColor} hover:bg-${statusColor}`}
+            variant="secondary"
+          >
+            {lead.status.charAt(0).toUpperCase() + lead.status.slice(1)}
+          </Badge>
+        </div>
       </div>
 
       <div className="space-y-2 text-sm text-gray-500">

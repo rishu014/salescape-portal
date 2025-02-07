@@ -2,14 +2,27 @@ import { useState } from "react";
 import { Lead } from "@/data/leads";
 import LeadStageCard from "@/components/dashboard/LeadStageCard";
 import SearchBar from "@/components/common/SearchBar";
+import { useToast } from "@/components/ui/use-toast";
 
 interface LeadListProps {
   leads: Lead[];
   onLeadClick?: (lead: Lead) => void;
+  onDeleteLead?: (leadId: string) => void;
 }
 
-const LeadList = ({ leads, onLeadClick }: LeadListProps) => {
+const LeadList = ({ leads, onLeadClick, onDeleteLead }: LeadListProps) => {
   const [searchQuery, setSearchQuery] = useState("");
+  const { toast } = useToast();
+
+  const handleDelete = (lead: Lead) => {
+    if (lead.status === 'new' && onDeleteLead) {
+      onDeleteLead(lead.id);
+      toast({
+        title: "Lead Deleted",
+        description: `Successfully deleted lead for ${lead.name}`,
+      });
+    }
+  };
 
   const filteredLeads = leads.filter(
     (lead) =>
@@ -30,6 +43,7 @@ const LeadList = ({ leads, onLeadClick }: LeadListProps) => {
             key={lead.id}
             lead={lead}
             onClick={() => onLeadClick?.(lead)}
+            onDelete={lead.status === 'new' ? () => handleDelete(lead) : undefined}
           />
         ))}
       </div>
