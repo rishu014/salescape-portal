@@ -185,18 +185,29 @@ const LeadForm = ({ open, onOpenChange, onSubmit, initialData }: LeadFormProps) 
                   {date ? format(date, "PPP") : <span>Pick a date</span>}
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="z-[201] w-auto p-0" align="start" side="left">
+              <PopoverContent 
+                className="z-[9999] w-auto p-0 bg-white shadow-lg border rounded-md" 
+                align="start" 
+                side="left"
+              >
                 <Calendar
                   mode="single"
                   selected={date}
                   onSelect={(newDate) => {
-                    setDate(newDate);
-                    setFormData({
-                      ...formData,
-                      nextCallback: newDate ? format(newDate, "yyyy-MM-dd") : "",
-                    });
+                    if (newDate) {
+                      setDate(newDate);
+                      setFormData({
+                        ...formData,
+                        nextCallback: format(newDate, "yyyy-MM-dd"),
+                      });
+                      toast({
+                        title: "Date Selected",
+                        description: `Callback date set to ${format(newDate, "PPP")}`,
+                      });
+                    }
                   }}
                   initialFocus
+                  className="bg-white rounded-md"
                 />
               </PopoverContent>
             </Popover>
