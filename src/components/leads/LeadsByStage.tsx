@@ -1,4 +1,4 @@
-import { Lead, LeadStage } from "@/data/leads";
+import { Lead, LeadStatus } from "@/data/leads";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import LeadList from "./LeadList";
 
@@ -8,13 +8,13 @@ interface LeadsByStageProps {
 }
 
 const LeadsByStage = ({ leads, onLeadClick }: LeadsByStageProps) => {
-  const leadsByStage = leads.reduce((acc, lead) => {
-    if (!acc[lead.stage]) {
-      acc[lead.stage] = [];
+  const leadsByStatus = leads.reduce((acc, lead) => {
+    if (!acc[lead.status]) {
+      acc[lead.status] = [];
     }
-    acc[lead.stage].push(lead);
+    acc[lead.status].push(lead);
     return acc;
-  }, {} as Record<LeadStage, Lead[]>);
+  }, {} as Record<LeadStatus, Lead[]>);
 
   return (
     <Tabs defaultValue="new" className="w-full">
@@ -26,10 +26,10 @@ const LeadsByStage = ({ leads, onLeadClick }: LeadsByStageProps) => {
         <TabsTrigger value="lost">Lost</TabsTrigger>
       </TabsList>
 
-      {Object.entries(leadsByStage).map(([stage, stageLeads]) => (
-        <TabsContent key={stage} value={stage}>
+      {Object.entries(leadsByStatus).map(([status, statusLeads]) => (
+        <TabsContent key={status} value={status}>
           <div className="rounded-lg border bg-white p-6">
-            <LeadList leads={stageLeads} onLeadClick={onLeadClick} />
+            <LeadList leads={statusLeads} onLeadClick={onLeadClick} />
           </div>
         </TabsContent>
       ))}

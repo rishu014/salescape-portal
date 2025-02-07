@@ -1,4 +1,4 @@
-export type LeadStage = 'new' | 'contacted' | 'negotiation' | 'closed' | 'lost';
+export type LeadStatus = 'new' | 'contacted' | 'negotiation' | 'closed' | 'lost';
 
 export interface Lead {
   id: string;
@@ -7,7 +7,7 @@ export interface Lead {
   email: string;
   phone: string;
   industry: string;
-  stage: LeadStage;
+  status: LeadStatus;  // Changed from stage
   assignedTo: string;
   createdAt: string;
   lastContact: string;
@@ -25,7 +25,7 @@ export const leads: Lead[] = [
     email: "john@techsolutions.com",
     phone: "+1 (555) 123-4567",
     industry: "Technology",
-    stage: "new",
+    status: "new",  // Changed from stage
     assignedTo: "Sarah Wilson",
     createdAt: "2024-01-15",
     lastContact: "2024-01-15",
@@ -40,7 +40,7 @@ export const leads: Lead[] = [
     email: "emma@marketingpro.com",
     phone: "+1 (555) 234-5678",
     industry: "Marketing",
-    stage: "contacted",
+    status: "contacted",  // Changed from stage
     assignedTo: "Mike Brown",
     createdAt: "2024-01-14",
     lastContact: "2024-01-16",
@@ -53,7 +53,7 @@ export const leads: Lead[] = [
     email: "david@retailgiants.com",
     phone: "+1 (555) 345-6789",
     industry: "Retail",
-    stage: "negotiation",
+    status: "negotiation",  // Changed from stage
     assignedTo: "Sarah Wilson",
     createdAt: "2024-01-10",
     lastContact: "2024-01-15",
@@ -66,7 +66,7 @@ export const leads: Lead[] = [
     email: "lisa@healthcareplus.com",
     phone: "+1 (555) 456-7890",
     industry: "Healthcare",
-    stage: "closed",
+    status: "closed",  // Changed from stage
     assignedTo: "Mike Brown",
     createdAt: "2024-01-05",
     lastContact: "2024-01-14",
@@ -79,7 +79,7 @@ export const leads: Lead[] = [
     email: "michael@educationfirst.com",
     phone: "+1 (555) 567-8901",
     industry: "Education",
-    stage: "lost",
+    status: "lost",  // Changed from stage
     assignedTo: "Sarah Wilson",
     createdAt: "2024-01-01",
     lastContact: "2024-01-10",
@@ -87,11 +87,7 @@ export const leads: Lead[] = [
   },
 ];
 
-export const getLeadsByStage = (stage: LeadStage) => {
-  return leads.filter(lead => lead.stage === stage);
-};
-
-export const getStageColor = (stage: LeadStage) => {
+export const getStatusColor = (status: LeadStatus) => {
   const colors = {
     new: "primary",
     contacted: "warning",
@@ -99,7 +95,7 @@ export const getStageColor = (stage: LeadStage) => {
     closed: "success",
     lost: "danger",
   };
-  return colors[stage];
+  return colors[status];
 };
 
 export const formatCurrency = (value: number) => {

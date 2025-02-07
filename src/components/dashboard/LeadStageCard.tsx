@@ -1,8 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { Lead, getStageColor, formatCurrency } from "@/data/leads";
+import { Lead, getStatusColor, formatCurrency } from "@/data/leads";
 import { CalendarDays, Building2, Mail, PhoneCall } from "lucide-react";
-import { format } from "date-fns";
 
 interface LeadStageCardProps {
   lead: Lead;
@@ -10,7 +9,7 @@ interface LeadStageCardProps {
 }
 
 const LeadStageCard = ({ lead, onClick }: LeadStageCardProps) => {
-  const stageColor = getStageColor(lead.stage);
+  const statusColor = getStatusColor(lead.status);
 
   return (
     <Card
@@ -26,10 +25,10 @@ const LeadStageCard = ({ lead, onClick }: LeadStageCardProps) => {
           </div>
         </div>
         <Badge
-          className={`bg-${stageColor} hover:bg-${stageColor}`}
+          className={`bg-${statusColor} hover:bg-${statusColor}`}
           variant="secondary"
         >
-          {lead.stage.charAt(0).toUpperCase() + lead.stage.slice(1)}
+          {lead.status.charAt(0).toUpperCase() + lead.status.slice(1)}
         </Badge>
       </div>
 
