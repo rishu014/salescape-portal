@@ -5,10 +5,10 @@ import { useToast } from "@/components/ui/use-toast";
 
 interface LeadStatusDetailsProps {
   formData: {
-    industry: string;
-    status: LeadStatus;
-    value: number;
-    assignedTo: string;
+    industry?: string;
+    status?: LeadStatus;
+    value?: number;
+    assignedTo?: string;
   };
   onChange: (field: string, value: string | number | LeadStatus) => void;
 }
@@ -22,7 +22,7 @@ const LeadStatusDetails = ({ formData, onChange }: LeadStatusDetailsProps) => {
         <div className="space-y-2">
           <label className="text-sm font-medium">Industry</label>
           <Input
-            value={formData.industry}
+            value={formData.industry || ""}
             onChange={(e) => onChange("industry", e.target.value)}
             placeholder="Technology"
             required
@@ -31,7 +31,7 @@ const LeadStatusDetails = ({ formData, onChange }: LeadStatusDetailsProps) => {
         <div className="space-y-2">
           <label className="text-sm font-medium">Status</label>
           <Select
-            value={formData.status}
+            value={formData.status || "new"}
             onValueChange={(value: LeadStatus) => {
               onChange("status", value);
               if (value === 'contacted') {
@@ -61,7 +61,7 @@ const LeadStatusDetails = ({ formData, onChange }: LeadStatusDetailsProps) => {
           <label className="text-sm font-medium">Value ($)</label>
           <Input
             type="number"
-            value={formData.value}
+            value={formData.value || 0}
             onChange={(e) => onChange("value", Number(e.target.value))}
             placeholder="10000"
             required
@@ -70,7 +70,7 @@ const LeadStatusDetails = ({ formData, onChange }: LeadStatusDetailsProps) => {
         <div className="space-y-2">
           <label className="text-sm font-medium">Assigned To</label>
           <Input
-            value={formData.assignedTo}
+            value={formData.assignedTo || ""}
             onChange={(e) => onChange("assignedTo", e.target.value)}
             placeholder="Sarah Wilson"
             required
