@@ -1,10 +1,10 @@
 import { Progress } from "@/components/ui/progress";
-import { LeadStage, getStageColor } from "@/data/leads";
+import { LeadStatus, getStatusColor } from "@/data/leads";
 import { cn } from "@/lib/utils";
 
 interface LeadStageProgressProps {
   stages: {
-    stage: LeadStage;
+    stage: LeadStatus;
     count: number;
   }[];
   total: number;
@@ -19,7 +19,7 @@ const LeadStageProgress = ({ stages, total }: LeadStageProgressProps) => {
     <div className="space-y-4">
       {stages.map(({ stage, count }) => {
         const percentage = Math.round((count / total) * 100) || 0;
-        const color = getStageColor(stage);
+        const color = getStatusColor(stage);
 
         return (
           <div key={stage} className="space-y-2">

@@ -33,6 +33,7 @@ const LeadForm = ({ open, onOpenChange, onSubmit, initialData }: LeadFormProps) 
       value: 0,
       nextCallback: "",
       callbackNotes: "",
+      lastContact: new Date().toISOString().split('T')[0],
     }
   );
 
@@ -42,10 +43,15 @@ const LeadForm = ({ open, onOpenChange, onSubmit, initialData }: LeadFormProps) 
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const updatedData = {
+      ...formData,
+      lastContact: new Date().toISOString().split('T')[0],
+    };
+    
     if (initialData) {
-      onSubmit({ ...initialData, ...formData });
+      onSubmit({ ...initialData, ...updatedData });
     } else {
-      onSubmit(formData);
+      onSubmit(updatedData);
     }
     toast({
       title: initialData ? "Lead Updated" : "Lead Created",
@@ -131,7 +137,7 @@ const LeadForm = ({ open, onOpenChange, onSubmit, initialData }: LeadFormProps) 
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select status" />
                 </SelectTrigger>
-                <SelectContent position="popper" className="z-[60]">
+                <SelectContent position="popper" className="z-[200]">
                   <SelectItem value="new">New</SelectItem>
                   <SelectItem value="contacted">Contacted</SelectItem>
                   <SelectItem value="negotiation">Negotiation</SelectItem>
@@ -139,6 +145,28 @@ const LeadForm = ({ open, onOpenChange, onSubmit, initialData }: LeadFormProps) 
                   <SelectItem value="lost">Lost</SelectItem>
                 </SelectContent>
               </Select>
+            </div>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Value ($)</label>
+              <Input
+                type="number"
+                value={formData.value}
+                onChange={(e) => setFormData({ ...formData, value: Number(e.target.value) })}
+                placeholder="10000"
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Assigned To</label>
+              <Input
+                value={formData.assignedTo}
+                onChange={(e) => setFormData({ ...formData, assignedTo: e.target.value })}
+                placeholder="Sarah Wilson"
+                required
+              />
             </div>
           </div>
 
@@ -157,7 +185,7 @@ const LeadForm = ({ open, onOpenChange, onSubmit, initialData }: LeadFormProps) 
                   {date ? format(date, "PPP") : <span>Pick a date</span>}
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="z-[61] w-auto p-0" align="start">
+              <PopoverContent className="z-[201] w-auto p-0" align="start">
                 <Calendar
                   mode="single"
                   selected={date}

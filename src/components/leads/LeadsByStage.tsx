@@ -16,20 +16,25 @@ const LeadsByStage = ({ leads, onLeadClick }: LeadsByStageProps) => {
     return acc;
   }, {} as Record<LeadStatus, Lead[]>);
 
+  const statuses: LeadStatus[] = ["new", "contacted", "negotiation", "closed", "lost"];
+
   return (
     <Tabs defaultValue="new" className="w-full">
       <TabsList className="w-full justify-start">
-        <TabsTrigger value="new">New</TabsTrigger>
-        <TabsTrigger value="contacted">Contacted</TabsTrigger>
-        <TabsTrigger value="negotiation">Negotiation</TabsTrigger>
-        <TabsTrigger value="closed">Closed</TabsTrigger>
-        <TabsTrigger value="lost">Lost</TabsTrigger>
+        {statuses.map((status) => (
+          <TabsTrigger key={status} value={status} className="capitalize">
+            {status} ({leadsByStatus[status]?.length || 0})
+          </TabsTrigger>
+        ))}
       </TabsList>
 
-      {Object.entries(leadsByStatus).map(([status, statusLeads]) => (
+      {statuses.map((status) => (
         <TabsContent key={status} value={status}>
           <div className="rounded-lg border bg-white p-6">
-            <LeadList leads={statusLeads} onLeadClick={onLeadClick} />
+            <div className="mb-4 flex items-center justify-between">
+              <h3 className="text-lg font-semibold capitalize">{status} Leads</h3>
+            </div>
+            <LeadList leads={leadsByStatus[status] || []} onLeadClick={onLeadClick} />
           </div>
         </TabsContent>
       ))}
