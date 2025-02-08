@@ -25,8 +25,6 @@ interface LeadListProps {
 const LeadList = ({ leads, onLeadClick, onDeleteLead }: LeadListProps) => {
   const [searchQuery, setSearchQuery] = useState("");
   const { toast } = useToast();
-  const [editingLead, setEditingLead] = useState<string | null>(null);
-  const [editValues, setEditValues] = useState<Partial<Lead>>({});
 
   const handleDelete = (lead: Lead) => {
     if (lead.status === 'new' && onDeleteLead) {
@@ -38,35 +36,14 @@ const LeadList = ({ leads, onLeadClick, onDeleteLead }: LeadListProps) => {
     }
   };
 
-  const handleEdit = (lead: Lead) => {
-    setEditingLead(lead.id);
-    setEditValues(lead);
-  };
-
-  const handleSave = (lead: Lead) => {
+  const handleStatusChange = (value: LeadStatus, lead: Lead) => {
     if (onLeadClick) {
       const currentUser = "Current User"; // Replace with actual logged-in user
-      onLeadClick({ 
-        ...lead, 
-        ...editValues,
-        assignedTo: currentUser 
-      });
-      toast({
-        title: "Lead Updated",
-        description: "Lead information has been updated successfully",
-      });
-    }
-    setEditingLead(null);
-    setEditValues({});
-  };
-
-  const handleStatusChange = (value: LeadStatus, lead: Lead) => {
-    const updatedLead = {
-      ...lead,
-      status: value,
-      assignedTo: "Current User" // Replace with actual logged-in user
-    };
-    if (onLeadClick) {
+      const updatedLead = {
+        ...lead,
+        status: value,
+        assignedTo: currentUser
+      };
       onLeadClick(updatedLead);
       toast({
         title: "Status Updated",
@@ -105,39 +82,9 @@ const LeadList = ({ leads, onLeadClick, onDeleteLead }: LeadListProps) => {
           <TableBody>
             {filteredLeads.map((lead) => (
               <TableRow key={lead.id}>
-                <TableCell>
-                  {editingLead === lead.id ? (
-                    <Input
-                      value={editValues.name || lead.name}
-                      onChange={(e) => setEditValues({ ...editValues, name: e.target.value })}
-                      className="max-w-[200px]"
-                    />
-                  ) : (
-                    lead.name
-                  )}
-                </TableCell>
-                <TableCell>
-                  {editingLead === lead.id ? (
-                    <Input
-                      value={editValues.company || lead.company}
-                      onChange={(e) => setEditValues({ ...editValues, company: e.target.value })}
-                      className="max-w-[200px]"
-                    />
-                  ) : (
-                    lead.company
-                  )}
-                </TableCell>
-                <TableCell>
-                  {editingLead === lead.id ? (
-                    <Input
-                      value={editValues.email || lead.email}
-                      onChange={(e) => setEditValues({ ...editValues, email: e.target.value })}
-                      className="max-w-[200px]"
-                    />
-                  ) : (
-                    lead.email
-                  )}
-                </TableCell>
+                <TableCell>{lead.name}</TableCell>
+                <TableCell>{lead.company}</TableCell>
+                <TableCell>{lead.email}</TableCell>
                 <TableCell>
                   <Select
                     defaultValue={lead.status}
@@ -180,35 +127,16 @@ const LeadList = ({ leads, onLeadClick, onDeleteLead }: LeadListProps) => {
                   )}
                 </TableCell>
                 <TableCell>
-                  <div className="flex items-center gap-2">
-                    {editingLead === lead.id ? (
-                      <Button 
-                        variant="default" 
-                        size="sm"
-                        onClick={() => handleSave(lead)}
-                      >
-                        Save
-                      </Button>
-                    ) : (
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => handleEdit(lead)}
-                      >
-                        Edit
-                      </Button>
-                    )}
-                    {lead.status === 'new' && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="text-red-500 hover:text-red-700"
-                        onClick={() => handleDelete(lead)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    )}
-                  </div>
+                  {lead.status === 'new' && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-red-500 hover:text-red-700"
+                      onClick={() => handleDelete(lead)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  )}
                 </TableCell>
               </TableRow>
             ))}
@@ -223,3 +151,4 @@ const LeadList = ({ leads, onLeadClick, onDeleteLead }: LeadListProps) => {
 };
 
 export default LeadList;
+
