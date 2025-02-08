@@ -1,14 +1,20 @@
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "@/components/ui/use-toast";
 import { Clock, CheckCircle, Timer, Calendar } from "lucide-react";
 
-const AttendanceCard = () => {
+interface AttendanceCardProps {
+  onTimeLogged: (minutes: number) => void;
+}
+
+const AttendanceCard = ({ onTimeLogged }: AttendanceCardProps) => {
   const [isCheckedIn, setIsCheckedIn] = useState(false);
   const [checkInTime, setCheckInTime] = useState<string | null>(null);
   const [elapsedTime, setElapsedTime] = useState<string>("00:00:00");
   const [timerInterval, setTimerInterval] = useState<number | null>(null);
+  const [startTime, setStartTime] = useState<Date | null>(null);
 
   const formatElapsedTime = (startTime: Date) => {
     const now = new Date();
@@ -19,11 +25,16 @@ const AttendanceCard = () => {
     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
   };
 
+  const calculateMinutesWorked = (start: Date, end: Date) => {
+    return Math.floor((end.getTime() - start.getTime()) / 60000);
+  };
+
   const handleAttendance = () => {
     const now = new Date();
     const timeString = now.toLocaleTimeString();
     
     if (!isCheckedIn) {
+      setStartTime(now);
       setCheckInTime(timeString);
       setIsCheckedIn(true);
       const interval = window.setInterval(() => {
@@ -39,6 +50,10 @@ const AttendanceCard = () => {
         clearInterval(timerInterval);
         setTimerInterval(null);
       }
+      if (startTime) {
+        const minutesWorked = calculateMinutesWorked(startTime, now);
+        onTimeLogged(minutesWorked);
+      }
       toast({
         title: "Checked Out Successfully",
         description: `Check-out time: ${timeString}`,
@@ -46,8 +61,17 @@ const AttendanceCard = () => {
       setIsCheckedIn(false);
       setCheckInTime(null);
       setElapsedTime("00:00:00");
+      setStartTime(null);
     }
   };
+
+  useEffect(() => {
+    return () => {
+      if (timerInterval) {
+        clearInterval(timerInterval);
+      }
+    };
+  }, [timerInterval]);
 
   return (
     <Card className="w-full">
@@ -77,7 +101,7 @@ const AttendanceCard = () => {
               </div>
             )}
             <div>
-              <p className="text-sm font-medium">Elapsed Time</p>
+              <p className="text-sm font-medium">Time Elapsed</p>
               <div className="flex items-center gap-2">
                 <Timer className="h-4 w-4 text-muted-foreground" />
                 <p className="text-sm text-muted-foreground">{elapsedTime}</p>

@@ -1,14 +1,15 @@
 
 import { useState } from "react";
-import { Lead } from "@/data/leads";
+import { Lead, LeadStatus } from "@/data/leads";
 import SearchBar from "@/components/common/SearchBar";
 import { useToast } from "@/components/ui/use-toast";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
-import { Select } from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Trash2 } from "lucide-react";
+import { Trash2, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { format } from "date-fns";
 
 interface LeadListProps {
   leads: Lead[];
@@ -39,7 +40,13 @@ const LeadList = ({ leads, onLeadClick, onDeleteLead }: LeadListProps) => {
 
   const handleSave = (lead: Lead) => {
     if (onLeadClick) {
-      onLeadClick({ ...lead, ...editValues });
+      // Get the current user's name (this would come from your auth system)
+      const currentUser = "Current User"; // Replace with actual logged-in user
+      onLeadClick({ 
+        ...lead, 
+        ...editValues,
+        assignedTo: currentUser 
+      });
       toast({
         title: "Lead Updated",
         description: "Lead information has been updated successfully",
@@ -47,6 +54,21 @@ const LeadList = ({ leads, onLeadClick, onDeleteLead }: LeadListProps) => {
     }
     setEditingLead(null);
     setEditValues({});
+  };
+
+  const handleStatusChange = (value: LeadStatus, lead: Lead) => {
+    const updatedLead = {
+      ...lead,
+      status: value,
+      assignedTo: "Current User" // Replace with actual logged-in user
+    };
+    if (onLeadClick) {
+      onLeadClick(updatedLead);
+      toast({
+        title: "Status Updated",
+        description: `Lead status updated to ${value}`,
+      });
+    }
   };
 
   const filteredLeads = leads.filter(
@@ -71,7 +93,7 @@ const LeadList = ({ leads, onLeadClick, onDeleteLead }: LeadListProps) => {
               <TableHead>Email</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Value</TableHead>
-              <TableHead>Last Contact</TableHead>
+              <TableHead>Next Call</TableHead>
               <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -112,18 +134,29 @@ const LeadList = ({ leads, onLeadClick, onDeleteLead }: LeadListProps) => {
                   )}
                 </TableCell>
                 <TableCell>
-                  <Badge
-                    variant="secondary"
-                    className={`bg-${lead.status === 'new' ? 'primary' : 
-                      lead.status === 'contacted' ? 'warning' : 
-                      lead.status === 'negotiation' ? 'secondary' : 
-                      lead.status === 'closed' ? 'success' : 'danger'}`}
+                  <Select
+                    value={lead.status}
+                    onValueChange={(value: LeadStatus) => handleStatusChange(value, lead)}
                   >
-                    {lead.status.charAt(0).toUpperCase() + lead.status.slice(1)}
-                  </Badge>
+                    <SelectTrigger className="w-[130px]">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="new">New</SelectItem>
+                      <SelectItem value="contacted">Contacted</SelectItem>
+                      <SelectItem value="negotiation">Negotiation</SelectItem>
+                      <SelectItem value="closed">Closed</SelectItem>
+                      <SelectItem value="lost">Lost</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </TableCell>
                 <TableCell>${lead.value.toLocaleString()}</TableCell>
-                <TableCell>{lead.lastContact}</TableCell>
+                <TableCell>
+                  <div className="flex items-center gap-2">
+                    <Calendar className="h-4 w-4" />
+                    {lead.nextCallback ? format(new Date(lead.nextCallback), 'MM/dd/yyyy') : 'Not scheduled'}
+                  </div>
+                </TableCell>
                 <TableCell>
                   <div className="flex items-center gap-2">
                     {editingLead === lead.id ? (
