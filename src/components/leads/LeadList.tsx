@@ -7,9 +7,14 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Trash2, Calendar } from "lucide-react";
+import { Trash2, Calendar, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 interface LeadListProps {
   leads: Lead[];
@@ -40,7 +45,6 @@ const LeadList = ({ leads, onLeadClick, onDeleteLead }: LeadListProps) => {
 
   const handleSave = (lead: Lead) => {
     if (onLeadClick) {
-      // Get the current user's name (this would come from your auth system)
       const currentUser = "Current User"; // Replace with actual logged-in user
       onLeadClick({ 
         ...lead, 
@@ -94,6 +98,7 @@ const LeadList = ({ leads, onLeadClick, onDeleteLead }: LeadListProps) => {
               <TableHead>Status</TableHead>
               <TableHead>Value</TableHead>
               <TableHead>Next Call</TableHead>
+              <TableHead>Notes</TableHead>
               <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -135,13 +140,13 @@ const LeadList = ({ leads, onLeadClick, onDeleteLead }: LeadListProps) => {
                 </TableCell>
                 <TableCell>
                   <Select
-                    value={lead.status}
+                    defaultValue={lead.status}
                     onValueChange={(value: LeadStatus) => handleStatusChange(value, lead)}
                   >
                     <SelectTrigger className="w-[130px]">
-                      <SelectValue />
+                      <SelectValue placeholder="Select status" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent position="popper" className="z-[200] bg-white">
                       <SelectItem value="new">New</SelectItem>
                       <SelectItem value="contacted">Contacted</SelectItem>
                       <SelectItem value="negotiation">Negotiation</SelectItem>
@@ -156,6 +161,23 @@ const LeadList = ({ leads, onLeadClick, onDeleteLead }: LeadListProps) => {
                     <Calendar className="h-4 w-4" />
                     {lead.nextCallback ? format(new Date(lead.nextCallback), 'MM/dd/yyyy') : 'Not scheduled'}
                   </div>
+                </TableCell>
+                <TableCell>
+                  {lead.callbackNotes && (
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button variant="ghost" size="icon">
+                          <MessageSquare className="h-4 w-4" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-80 bg-white">
+                        <div className="space-y-2">
+                          <h4 className="font-medium">Callback Notes</h4>
+                          <p className="text-sm text-gray-500">{lead.callbackNotes}</p>
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+                  )}
                 </TableCell>
                 <TableCell>
                   <div className="flex items-center gap-2">
