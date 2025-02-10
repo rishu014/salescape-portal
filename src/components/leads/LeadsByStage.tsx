@@ -14,6 +14,14 @@ const LeadsByStage = ({ leads, onLeadClick }: LeadsByStageProps) => {
     return acc;
   }, {} as Record<string, Lead[]>);
 
+  const getLeadsByStatus = (productLeads: Lead[]) => {
+    const statuses: LeadStatus[] = ['new', 'contacted', 'negotiation', 'closed', 'lost'];
+    return statuses.reduce((acc, status) => {
+      acc[status] = productLeads.filter(lead => lead.status === status);
+      return acc;
+    }, {} as Record<LeadStatus, Lead[]>);
+  };
+
   return (
     <Tabs defaultValue={products[0]} className="w-full">
       <TabsList className="w-full justify-start">
@@ -30,10 +38,17 @@ const LeadsByStage = ({ leads, onLeadClick }: LeadsByStageProps) => {
             <div className="mb-4 flex items-center justify-between">
               <h3 className="text-lg font-semibold capitalize">{product} Leads</h3>
             </div>
-            <LeadList 
-              leads={leadsByProduct[product] || []} 
-              onLeadClick={onLeadClick}
-            />
+            <div className="space-y-6">
+              {Object.entries(getLeadsByStatus(leadsByProduct[product] || [])).map(([status, statusLeads]) => (
+                <div key={status} className="space-y-4">
+                  <h4 className="text-md font-medium capitalize">{status} ({statusLeads.length})</h4>
+                  <LeadList 
+                    leads={statusLeads} 
+                    onLeadClick={onLeadClick}
+                  />
+                </div>
+              ))}
+            </div>
           </div>
         </TabsContent>
       ))}

@@ -21,23 +21,20 @@ const Leads = () => {
     queryFn: () => {
       return Promise.resolve([]);
     },
-    staleTime: 5 * 60 * 1000, // Consider data fresh for 5 minutes
-    gcTime: 30 * 60 * 1000, // Keep unused data in cache for 30 minutes
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
   });
 
   const handleAddLead = (newLead: Partial<Lead>) => {
-    // Get the current leads from the cache
     const currentLeads = queryClient.getQueryData(['leads']) as Lead[] || [];
     const updatedLeads = [...currentLeads];
     
     if (selectedLead) {
-      // Update existing lead
       const leadIndex = updatedLeads.findIndex(lead => lead.id === selectedLead.id);
       if (leadIndex !== -1) {
         updatedLeads[leadIndex] = { ...selectedLead, ...newLead };
       }
     } else {
-      // Create new lead
       const lead: Lead = {
         id: (currentLeads.length + 1).toString(),
         createdAt: new Date().toISOString().split('T')[0],
@@ -47,7 +44,6 @@ const Leads = () => {
       updatedLeads.unshift(lead);
     }
 
-    // Update cache with new data
     queryClient.setQueryData(['leads'], updatedLeads);
     
     setSelectedLead(undefined);
