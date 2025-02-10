@@ -19,36 +19,44 @@ const Leads = () => {
   const { data: localLeads = [] } = useQuery({
     queryKey: ['leads'],
     queryFn: () => {
-      // In a real app, this would be an API call
-      // For now, we'll use the static leads array
       return Promise.resolve([]);
     },
-    // Enable caching
     staleTime: 5 * 60 * 1000, // Consider data fresh for 5 minutes
-    cacheTime: 30 * 60 * 1000, // Keep unused data in cache for 30 minutes
+    gcTime: 30 * 60 * 1000, // Keep unused data in cache for 30 minutes
   });
 
   const handleAddLead = (newLead: Partial<Lead>) => {
-    const updatedLeads = [...localLeads];
+    // Get the current leads from the cache
+    const currentLeads = queryClient.getQueryData(['leads']) as Lead[] || [];
+    const updatedLeads = [...currentLeads];
     
     if (selectedLead) {
+      // Update existing lead
       const leadIndex = updatedLeads.findIndex(lead => lead.id === selectedLead.id);
       if (leadIndex !== -1) {
-        updatedLeads[leadIndex] = { ...updatedLeads[leadIndex], ...newLead };
+        updatedLeads[leadIndex] = { ...selectedLead, ...newLead };
       }
     } else {
+      // Create new lead
       const lead: Lead = {
-        ...newLead,
-        id: (localLeads.length + 1).toString(),
+        id: (currentLeads.length + 1).toString(),
         createdAt: new Date().toISOString().split('T')[0],
         lastContact: new Date().toISOString().split('T')[0],
+        ...newLead,
       } as Lead;
       updatedLeads.unshift(lead);
     }
 
     // Update cache with new data
     queryClient.setQueryData(['leads'], updatedLeads);
+    
     setSelectedLead(undefined);
+    setShowLeadForm(false);
+    
+    toast({
+      title: selectedLead ? "Lead Updated" : "Lead Created",
+      description: `Successfully ${selectedLead ? "updated" : "created"} lead for ${newLead.name}`,
+    });
   };
 
   const handleLeadClick = (lead: Lead) => {
@@ -86,7 +94,7 @@ const Leads = () => {
           }}
           onSubmit={handleAddLead}
           initialData={selectedLead}
-          defaultProduct={products[0]} // Set Product A as default
+          defaultProduct={products[0]}
         />
       </div>
     </div>

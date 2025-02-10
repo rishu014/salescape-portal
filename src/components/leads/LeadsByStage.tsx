@@ -32,7 +32,7 @@ const LeadsByStage = ({ leads, onLeadClick }: LeadsByStageProps) => {
             </div>
             <LeadList 
               leads={leadsByProduct[product] || []} 
-              onLeadClick={onLeadClick} 
+              onLeadClick={onLeadClick}
             />
           </div>
         </TabsContent>
