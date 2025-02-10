@@ -19,6 +19,7 @@ const LeadListItem = ({ lead, onStatusChange, onDelete }: LeadListItemProps) => 
       <TableCell>{lead.name}</TableCell>
       <TableCell>{lead.company}</TableCell>
       <TableCell>{lead.email}</TableCell>
+      <TableCell>{lead.product}</TableCell>
       <TableCell>
         <Select
           defaultValue={lead.status}

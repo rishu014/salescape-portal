@@ -1,3 +1,4 @@
+
 export type LeadStatus = 'new' | 'contacted' | 'negotiation' | 'closed' | 'lost';
 
 export interface Lead {
@@ -15,6 +16,7 @@ export interface Lead {
   notes?: string;
   nextCallback?: string;
   callbackNotes?: string;
+  product: string; // Added product field
 }
 
 export const leads: Lead[] = [];
@@ -36,3 +38,10 @@ export const formatCurrency = (value: number) => {
     currency: 'USD',
   }).format(value);
 };
+
+export const products = [
+  "Product A",
+  "Product B",
+  "Product C",
+  "Product D"
+];

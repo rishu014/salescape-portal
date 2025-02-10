@@ -8,6 +8,7 @@ const LeadListHeader = () => {
         <TableHead>Name</TableHead>
         <TableHead>Company</TableHead>
         <TableHead>Email</TableHead>
+        <TableHead>Product</TableHead>
         <TableHead>Status</TableHead>
         <TableHead>Value</TableHead>
         <TableHead>Next Call</TableHead>

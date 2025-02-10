@@ -1,11 +1,12 @@
 
 import { useState } from "react";
-import { Lead, LeadStatus } from "@/data/leads";
+import { Lead, LeadStatus, products } from "@/data/leads";
 import SearchBar from "@/components/common/SearchBar";
 import { useToast } from "@/components/ui/use-toast";
 import { Table, TableBody } from "@/components/ui/table";
 import LeadListHeader from "./LeadListHeader";
 import LeadListItem from "./LeadListItem";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface LeadListProps {
   leads: Lead[];
@@ -15,6 +16,7 @@ interface LeadListProps {
 
 const LeadList = ({ leads, onLeadClick, onDeleteLead }: LeadListProps) => {
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedProduct, setSelectedProduct] = useState<string>("all");
   const { toast } = useToast();
 
   const handleDelete = (lead: Lead) => {
@@ -29,7 +31,7 @@ const LeadList = ({ leads, onLeadClick, onDeleteLead }: LeadListProps) => {
 
   const handleStatusChange = (value: LeadStatus, lead: Lead) => {
     if (onLeadClick) {
-      const currentUser = "Current User"; // Replace with actual logged-in user
+      const currentUser = "Current User";
       const updatedLead = {
         ...lead,
         status: value,
@@ -44,18 +46,43 @@ const LeadList = ({ leads, onLeadClick, onDeleteLead }: LeadListProps) => {
   };
 
   const filteredLeads = leads.filter(
-    (lead) =>
-      lead.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      lead.company.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      lead.email.toLowerCase().includes(searchQuery.toLowerCase())
+    (lead) => {
+      const matchesSearch = 
+        lead.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        lead.company.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        lead.email.toLowerCase().includes(searchQuery.toLowerCase());
+      
+      const matchesProduct = selectedProduct === "all" || lead.product === selectedProduct;
+      
+      return matchesSearch && matchesProduct;
+    }
   );
 
   return (
     <div className="space-y-6">
-      <SearchBar
-        onSearch={setSearchQuery}
-        placeholder="Search by name, company, or email..."
-      />
+      <div className="flex gap-4 items-center">
+        <div className="flex-1">
+          <SearchBar
+            onSearch={setSearchQuery}
+            placeholder="Search by name, company, or email..."
+          />
+        </div>
+        <div className="w-[200px]">
+          <Select value={selectedProduct} onValueChange={setSelectedProduct}>
+            <SelectTrigger className="w-full bg-white">
+              <SelectValue placeholder="Select product" />
+            </SelectTrigger>
+            <SelectContent position="popper" className="z-[200] bg-white">
+              <SelectItem value="all">All Products</SelectItem>
+              {products.map((product) => (
+                <SelectItem key={product} value={product}>
+                  {product}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
       <div className="rounded-md border">
         <Table>
           <LeadListHeader />
