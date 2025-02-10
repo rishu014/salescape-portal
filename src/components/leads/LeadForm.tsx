@@ -1,4 +1,5 @@
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { LeadStatus, Lead, products } from "@/data/leads";
@@ -17,28 +18,36 @@ interface LeadFormProps {
   defaultProduct?: string;
 }
 
+const defaultFormData = (defaultProduct?: string) => ({
+  name: "",
+  company: "",
+  email: "",
+  phone: "",
+  industry: "",
+  status: "new" as LeadStatus,
+  assignedTo: "",
+  value: 0,
+  nextCallback: "",
+  callbackNotes: "",
+  lastContact: new Date().toISOString().split('T')[0],
+  product: defaultProduct || products[0],
+});
+
 const LeadForm = ({ open, onOpenChange, onSubmit, initialData, defaultProduct }: LeadFormProps) => {
   const { toast } = useToast();
   const [formData, setFormData] = useState<Partial<Lead>>(
-    initialData || {
-      name: "",
-      company: "",
-      email: "",
-      phone: "",
-      industry: "",
-      status: "new" as LeadStatus,
-      assignedTo: "",
-      value: 0,
-      nextCallback: "",
-      callbackNotes: "",
-      lastContact: new Date().toISOString().split('T')[0],
-      product: defaultProduct || products[0], // Set default product
-    }
+    initialData || defaultFormData(defaultProduct)
   );
 
   const [date, setDate] = useState<Date | undefined>(
     formData.nextCallback ? new Date(formData.nextCallback) : undefined
   );
+
+  // Reset form when initialData changes or form is opened/closed
+  useEffect(() => {
+    setFormData(initialData || defaultFormData(defaultProduct));
+    setDate(initialData?.nextCallback ? new Date(initialData.nextCallback) : undefined);
+  }, [initialData, open, defaultProduct]);
 
   const handleFieldChange = (field: string, value: string | number | LeadStatus) => {
     setFormData({ ...formData, [field]: value });

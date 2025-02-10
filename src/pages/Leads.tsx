@@ -15,7 +15,6 @@ const Leads = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Use React Query to manage leads data
   const { data: localLeads = [] } = useQuery({
     queryKey: ['leads'],
     queryFn: () => {
