@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { LeadStatus, Lead } from "@/data/leads";
+import { LeadStatus, Lead, products } from "@/data/leads";
 import { useToast } from "@/components/ui/use-toast";
 import { Textarea } from "@/components/ui/textarea";
 import { format } from "date-fns";
@@ -14,9 +14,10 @@ interface LeadFormProps {
   onOpenChange: (open: boolean) => void;
   onSubmit: (lead: Partial<Lead>) => void;
   initialData?: Lead;
+  defaultProduct?: string;
 }
 
-const LeadForm = ({ open, onOpenChange, onSubmit, initialData }: LeadFormProps) => {
+const LeadForm = ({ open, onOpenChange, onSubmit, initialData, defaultProduct }: LeadFormProps) => {
   const { toast } = useToast();
   const [formData, setFormData] = useState<Partial<Lead>>(
     initialData || {
@@ -31,6 +32,7 @@ const LeadForm = ({ open, onOpenChange, onSubmit, initialData }: LeadFormProps) 
       nextCallback: "",
       callbackNotes: "",
       lastContact: new Date().toISOString().split('T')[0],
+      product: defaultProduct || products[0], // Set default product
     }
   );
 
